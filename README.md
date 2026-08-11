@@ -40,6 +40,32 @@ systems is an unusual pair in this market — that repo is where the two meet.
 
 ---
 
+## The same ML service, shipped to both clouds
+
+Most portfolios pick a cloud. I took one sentiment model and shipped it twice, so the
+comparison is the deliverable rather than the claim:
+
+| | **[AWS — mlops-sentiment-eks](https://github.com/sadvi11/mlops-sentiment-eks)** | **[Azure — azure-sentiment-containerapp](https://github.com/sadvi11/azure-sentiment-containerapp)** |
+|---|---|---|
+| Runtime | EKS — Kubernetes I control | Container Apps — serverless, scales to zero |
+| IaC | Terraform | Bicep |
+| Scaling | HPA on Prometheus metrics | HTTP autoscaling, zero to five |
+| Registry auth | IRSA | Managed identity, `AcrPull` only |
+| CI/CD | GitHub Actions → EKS | GitHub Actions → ACR → Container Apps |
+| Status | Deployed | **[Live right now](https://sentiment-api.delightfulpebble-6ceea5c9.canadacentral.azurecontainerapps.io/docs)** |
+
+**What the pair actually taught me:** identical code, different exposure. `/metrics` is an
+in-cluster scrape on EKS and an internet-facing endpoint on Container Apps — the same
+Prometheus default that is harmless on one cloud publishes your interpreter version on the
+other. Choosing between them is a trade-off question (cluster control vs. no cluster ops,
+per-node cost vs. scale-to-zero), and I can argue either side because I have run both.
+
+The Azure deployment stores **no credentials at all** — GitHub authenticates by OIDC with a
+short-lived token, and the app pulls images with a managed identity. There is no registry
+password in existence to leak.
+
+---
+
 ## Featured work
 
 Every project below is deployed and verified. Not tutorials, not clones.
@@ -53,17 +79,20 @@ Every project below is deployed and verified. Not tutorials, not clones.
 | **[multi-cloud-terraform](https://github.com/sadvi11/multi-cloud-terraform)** | One codebase, two clouds, identical network — and the three places AWS and Azure stop being interchangeable | Terraform · AWS · Azure |
 | **[flask-ecs-fargate-cicd](https://github.com/sadvi11/flask-ecs-fargate-cicd)** | Push to `main` → build, tag by commit SHA, push to ECR, deploy to Fargate. Zero manual steps · **[live](https://flask-ecs-fargate-cicd.onrender.com/health)** | ECS Fargate · ECR · GitHub Actions |
 | **[docker-flask-ai-app](https://github.com/sadvi11/docker-flask-ai-app)** | Test-gated CI/CD — tests run before the build, images scanned before they reach ECR | Docker · GitHub Actions · ECR |
+| **[azure-sentiment-containerapp](https://github.com/sadvi11/azure-sentiment-containerapp)** | Azure Container Apps with Bicep IaC and OIDC CI/CD — no stored cloud credential, no registry password · **[live](https://sentiment-api.delightfulpebble-6ceea5c9.canadacentral.azurecontainerapps.io/docs)** | Azure · Bicep · Container Apps |
 | **[prometheus-monitoring-stack](https://github.com/sadvi11/prometheus-monitoring-stack)** | Pull-model observability, deliberately isolated from what it watches — a watcher that dies with its host never alerts | Prometheus · Grafana · Docker Compose |
 
 ### AI & machine learning
 
 | Project | One line | Stack |
 |---|---|---|
+| **[mlops-sentiment-eks](https://github.com/sadvi11/mlops-sentiment-eks)** | Production MLOps on EKS — HPA autoscaling on Prometheus metrics, Terraform IaC, and CI/CD that refuses to ship a model whose cross-validated accuracy regressed | EKS · Terraform · Prometheus |
 | **[bedrock-rag-app](https://github.com/sadvi11/bedrock-rag-app)** | RAG over verified Canadian tax rules — grounded answers, because a confident wrong answer about contribution limits is worse than none | Bedrock · Titan V2 · Claude · pgvector |
 | **[smart-ai-agent](https://github.com/sadvi11/smart-ai-agent)** | Autonomous agent with tool use, persistent memory and RAG — plus an eval suite covering prompt-injection and SQL-injection robustness | Claude API · pgvector · Flask |
 | **[ai-chatbot-with-memory](https://github.com/sadvi11/ai-chatbot-with-memory)** | Stateful conversation persisted in DynamoDB, partitioned so the hot-partition trap doesn't bite under load | FastAPI · DynamoDB · Claude API |
 | **[canadian-financial-sentiment](https://github.com/sadvi11/canadian-financial-sentiment)** | End-to-end SageMaker pipeline — train, deploy, serve, tear down. The pipeline is the deliverable | SageMaker · S3 · Flask |
 | **[f1-telemetry-pipeline](https://github.com/sadvi11/f1-telemetry-pipeline)** | Real-time telemetry through a decoupled queue-and-consumer pipeline with DLQ and retry | SQS · Lambda · DynamoDB |
+| **[structured-test-agent](https://github.com/sadvi11/structured-test-agent)** | An LLM that must return schema-valid JSON or retry — the difference between a demo and something a pipeline can consume | Claude API · JSON Schema |
 | **[aws-python-automation](https://github.com/sadvi11/aws-python-automation)** | boto3 automation suite — EC2 control, S3, Lambda scheduling, CloudWatch, SNS alerting | Python · boto3 |
 
 ---
@@ -84,8 +113,9 @@ they're the fastest way to tell whether I'd be useful on your team.
 ## What I work with
 
 **Cloud** — AWS (ECS Fargate, EKS, Lambda, VPC, ECR, S3, DynamoDB, Kinesis, SQS, SNS,
-API Gateway, CloudWatch, IAM, Config, SageMaker, Bedrock) · Azure (AZ-900 certified,
-building Azure equivalents of my AWS work)
+API Gateway, CloudWatch, IAM, Config, SageMaker, Bedrock) · Azure (Container Apps, ACR,
+Bicep, managed identity, Log Analytics, workload identity federation — a live deployment in
+`canadacentral`, AZ-900 certified)
 
 **Infrastructure as code** — Terraform (modules, multi-provider, remote state) · Docker ·
 Kubernetes · OpenStack
