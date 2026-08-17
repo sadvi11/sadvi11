@@ -1,13 +1,13 @@
 # Sadhvi Sharma
 
-**Cloud & AI Engineer** · Calgary, Alberta, Canada
+**Cloud & Platform Engineer** · Calgary, Alberta, Canada
 
-I spent 2.5 years keeping **Bell Canada's and T-Mobile US's** 5G core running.
-Now I build on AWS and Azure with the habits that job forces on you.
+I spent 2.5 years keeping **Bell Canada's, T-Mobile US's and Orange's** 5G core running
+against a 99.9% SLA. Now I build on AWS and Azure with the habits that job forces on you.
 
-> **Open to Cloud · DevOps · Platform · AI Engineering roles.**
+> **Open to Cloud · DevOps · Platform · SRE · AI Engineering roles.**
 > Calgary · remote across Canada · open to relocation.
-> **Authorized to work in Canada. Available immediately.**
+> **Permanent Resident — no sponsorship required. Available immediately.**
 >
 > 📧 **sadhvisharma763@gmail.com** · 💼 **[LinkedIn](https://www.linkedin.com/in/sadhvi-sharma-5789a6249)**
 
@@ -16,140 +16,185 @@ Now I build on AWS and Azure with the habits that job forces on you.
 ## Why my background is different
 
 Most cloud engineers learn high availability from a course. I learned it on call, on a
-telecom core network, against a **99.9% SLA** — where the failure mode isn't a red build,
-it's someone's call dropping mid-sentence.
+telecom core network, where the failure mode isn't a red build — it's someone's call
+dropping mid-sentence.
 
 At Nokia I operated Cloud-Native 5G Core network functions — AMF, SMF, UPF, CBIS, CBAM,
-NRF — across **10+ operator deployments** at roughly **100,000+ subscribers each**, running
-as containerized network functions on Kubernetes and OpenStack. Zero-downtime rolling
-upgrades were a contractual requirement, not an aspiration. *(Nokia appreciation award.)*
+NRF — as containerized workloads on Kubernetes and OpenStack, across deployments for
+international operators. Zero-downtime rolling upgrades were a contractual requirement,
+not an aspiration. I delivered a wave-based multi-site 4G→5G migration with **zero
+subscriber downtime**. *(Nokia appreciation award.)*
 
-Then I noticed the thing that made everything since easier: **5G Service-Based Architecture
-and AWS microservices are the same patterns wearing different names.** Service discovery,
-horizontal scaling, event streaming, traffic routing, container lifecycle. I wrote the
-mapping out function by function:
-
-### → **[Nokia 5G Core → AWS: A Production Migration Case Study](https://github.com/sadvi11/nokia-5g-to-aws-migration)**
-
-AMF → ALB · SMF → Lambda + Step Functions · UPF → VPC/NAT · CBAM → EKS/ECS ·
-NRF → Cloud Map · OAM bus → Kinesis · UDM → DynamoDB — with Terraform modules and
-SOC 2 / PCI DSS control mappings.
-
-**If you read one thing here, read that.** Telecom infrastructure depth *and* shipped AI
-systems is an unusual pair in this market — that repo is where the two meet.
+Then I noticed the thing that made everything since easier: **5G Service-Based
+Architecture and cloud microservices are the same patterns wearing different names.**
+Service discovery, horizontal scaling, event streaming, container lifecycle.
 
 ---
 
-## The same ML service, shipped to both clouds
+## Three things worth your time
 
-Most portfolios pick a cloud. I took one sentiment model and shipped it twice, so the
-comparison is the deliverable rather than the claim:
+Everything here is public. These three are where the engineering actually is.
 
-| | **[AWS — mlops-sentiment-eks](https://github.com/sadvi11/mlops-sentiment-eks)** | **[Azure — azure-sentiment-containerapp](https://github.com/sadvi11/azure-sentiment-containerapp)** |
+### 1. [Three-tier e-commerce on AWS EKS](https://github.com/sadvi11/eks-ecommerce-microservices) — 13 workloads, proven on every commit
+
+8 microservices in 5 languages, 2 databases, a cache and a message broker. Terraform
+builds the cluster; one templated Helm topology renders all 13 workloads rather than 24
+copy-pasted manifests.
+
+**What makes it different from the hundreds of other three-tier EKS repos:** CI deploys
+the entire stack to a throwaway cluster on every commit — free, no AWS account — then
+**writes a cart key, deletes the Redis pod, and asserts the key came back.** The
+persistence claim is tested, not stated.
+
+It also took nine CI runs to get green, and the commit history says why: a container
+running as uid 0 with all capabilities dropped **is not root** and fails with
+`chown: Operation not permitted`; a Java service that looked broken was actually
+cascading from MySQL being down; and the vendor MySQL image genuinely cannot initialise,
+which four identical error messages proved.
+
+### 2. [The same ML service, shipped to both clouds](https://github.com/sadvi11/mlops-sentiment-eks)
+
+| | **[AWS — EKS](https://github.com/sadvi11/mlops-sentiment-eks)** | **[Azure — Container Apps](https://github.com/sadvi11/azure-sentiment-containerapp)** |
 |---|---|---|
 | Runtime | EKS — Kubernetes I control | Container Apps — serverless, scales to zero |
 | IaC | Terraform | Bicep |
 | Scaling | HPA on Prometheus metrics | HTTP autoscaling, zero to five |
 | Registry auth | IRSA | Managed identity, `AcrPull` only |
-| CI/CD | GitHub Actions → EKS | GitHub Actions → ACR → Container Apps |
-| Status | Deployed | **[Live right now](https://sentiment-api.delightfulpebble-6ceea5c9.canadacentral.azurecontainerapps.io/docs)** |
+| Credentials stored | none — OIDC federation | none — OIDC federation |
 
-**What the pair actually taught me:** identical code, different exposure. `/metrics` is an
-in-cluster scrape on EKS and an internet-facing endpoint on Container Apps — the same
-Prometheus default that is harmless on one cloud publishes your interpreter version on the
-other. Choosing between them is a trade-off question (cluster control vs. no cluster ops,
-per-node cost vs. scale-to-zero), and I can argue either side because I have run both.
+**What running both actually taught me:** identical code, different exposure. `/metrics`
+is an in-cluster scrape on EKS and an internet-facing endpoint on Container Apps — the
+same Prometheus default that is harmless on one cloud publishes your interpreter version
+on the other. I found that by opening the URL, not by reading the docs.
 
-The Azure deployment stores **no credentials at all** — GitHub authenticates by OIDC with a
-short-lived token, and the app pulls images with a managed identity. There is no registry
-password in existence to leak.
+> **Status:** the Azure deployment ran in production in `canadacentral`, released by
+> pipeline on every push. The subscription's free-trial credits are now exhausted, so the
+> endpoint is offline. Everything is reproducible from the repo — the pipeline rebuilds
+> and redeploys with no manual steps. I'd rather say that than leave a dead link labelled
+> "live".
+
+### 3. [Nokia 5G Core → AWS migration study](https://github.com/sadvi11/nokia-5g-to-aws-migration)
+
+Carrier network functions mapped to AWS service by service — AMF→ALB, CBAM→ECS,
+NRF→Cloud Map, OAM bus→Kinesis — across 7 Terraform modules with SOC 2 and PCI DSS
+control mappings.
+
+It's an architecture study with working Terraform, not a production migration, and the
+README says so. What's real is the source side: I operated these functions, so the
+mapping is grounded in what they do rather than what their names suggest — including
+being explicit that the **user plane doesn't map cleanly**, because a UPF forwarding
+subscriber packets at line rate is not an ECS task.
 
 ---
 
-## Featured work
+## Everything else
 
-Every project below is deployed and verified. Not tutorials, not clones.
-
-### Cloud infrastructure & DevOps
+**Infrastructure, delivery and reliability**
 
 | Project | One line | Stack |
 |---|---|---|
-| **[nokia-5g-to-aws-migration](https://github.com/sadvi11/nokia-5g-to-aws-migration)** | Carrier-grade 5G network functions mapped to production AWS, with 7 Terraform modules and compliance controls | Terraform · ECS · Kinesis · DynamoDB |
-| **[aws-vpc-terraform](https://github.com/sadvi11/aws-vpc-terraform)** | Multi-tier VPC across two AZs — NAT, tiered security groups, NACLs, least-privilege IAM. One command up, one command down | Terraform · AWS · IAM |
+| **[gitops-argocd-kubernetes](https://github.com/sadvi11/gitops-argocd-kubernetes)** | Pull-based delivery with **no cluster credential in CI**. The pipeline scales prod down by hand and fails unless Argo CD heals it — self-heal confirmed in ~10s every run | Argo CD · Kustomize · kind |
+| **[iac-security-guardrails](https://github.com/sadvi11/iac-security-guardrails)** | Checkov + custom OPA/Rego for Canadian data residency and cost tags. Tested in **both directions** — which caught a policy that had silently stopped matching anything | OPA · Rego · Checkov · Terraform |
+| **[sre-incident-practice](https://github.com/sadvi11/sre-incident-practice)** | Blameless postmortems from **my own real incidents**, an SLO with an error-budget policy, and the argument for 99.5% over 99.9% because the architecture can't hold the higher number | SRE · SLO · runbooks |
+| **[azure-finops-guardrails](https://github.com/sadvi11/azure-finops-guardrails)** | Finds unattached disks, orphaned IPs, and VMs stopped-but-not-deallocated; forecasts month-end from run rate using median absolute deviation so one spike can't hide inside it | Azure · Bicep · Python |
+| **[azure-devops-pipelines](https://github.com/sadvi11/azure-devops-pipelines)** | Multi-stage pipelines with environment gates that live **outside** the repo, so a developer can't bypass production approval by editing YAML | Azure DevOps · templates |
 | **[multi-cloud-terraform](https://github.com/sadvi11/multi-cloud-terraform)** | One codebase, two clouds, identical network — and the three places AWS and Azure stop being interchangeable | Terraform · AWS · Azure |
-| **[flask-ecs-fargate-cicd](https://github.com/sadvi11/flask-ecs-fargate-cicd)** | Push to `main` → build, tag by commit SHA, push to ECR, deploy to Fargate. Zero manual steps · **[live](https://flask-ecs-fargate-cicd.onrender.com/health)** | ECS Fargate · ECR · GitHub Actions |
-| **[docker-flask-ai-app](https://github.com/sadvi11/docker-flask-ai-app)** | Test-gated CI/CD — tests run before the build, images scanned before they reach ECR | Docker · GitHub Actions · ECR |
-| **[azure-sentiment-containerapp](https://github.com/sadvi11/azure-sentiment-containerapp)** | Azure Container Apps with Bicep IaC and OIDC CI/CD — no stored cloud credential, no registry password · **[live](https://sentiment-api.delightfulpebble-6ceea5c9.canadacentral.azurecontainerapps.io/docs)** | Azure · Bicep · Container Apps |
-| **[prometheus-monitoring-stack](https://github.com/sadvi11/prometheus-monitoring-stack)** | Pull-model observability, deliberately isolated from what it watches — a watcher that dies with its host never alerts | Prometheus · Grafana · Docker Compose |
+| **[aws-vpc-terraform](https://github.com/sadvi11/aws-vpc-terraform)** | Multi-tier VPC across two AZs — NAT, tiered security groups, NACLs, least-privilege IAM | Terraform · AWS · IAM |
+| **[flask-ecs-fargate-cicd](https://github.com/sadvi11/flask-ecs-fargate-cicd)** | Containerized API on Fargate, SHA-tagged images, **OIDC — no stored AWS keys** · [live demo](https://flask-ecs-fargate-cicd.onrender.com/health) | ECS Fargate · ECR · Actions |
+| **[docker-flask-ai-app](https://github.com/sadvi11/docker-flask-ai-app)** | Test-gated CI/CD where the Trivy scan **fails the build** on HIGH/CRITICAL rather than reporting and moving on | Docker · Trivy · ECR |
+| **[prometheus-monitoring-stack](https://github.com/sadvi11/prometheus-monitoring-stack)** | Pull-model observability, deliberately isolated from what it watches — a watcher that dies with its host never alerts | Prometheus · Grafana |
 
-### AI & machine learning
+**AI and machine learning**
 
 | Project | One line | Stack |
 |---|---|---|
-| **[mlops-sentiment-eks](https://github.com/sadvi11/mlops-sentiment-eks)** | Production MLOps on EKS — HPA autoscaling on Prometheus metrics, Terraform IaC, and CI/CD that refuses to ship a model whose cross-validated accuracy regressed | EKS · Terraform · Prometheus |
-| **[bedrock-rag-app](https://github.com/sadvi11/bedrock-rag-app)** | RAG over verified Canadian tax rules — grounded answers, because a confident wrong answer about contribution limits is worse than none | Bedrock · Titan V2 · Claude · pgvector |
-| **[smart-ai-agent](https://github.com/sadvi11/smart-ai-agent)** | Autonomous agent with tool use, persistent memory and RAG — plus an eval suite covering prompt-injection and SQL-injection robustness | Claude API · pgvector · Flask |
-| **[ai-chatbot-with-memory](https://github.com/sadvi11/ai-chatbot-with-memory)** | Stateful conversation persisted in DynamoDB, partitioned so the hot-partition trap doesn't bite under load | FastAPI · DynamoDB · Claude API |
-| **[canadian-financial-sentiment](https://github.com/sadvi11/canadian-financial-sentiment)** | End-to-end SageMaker pipeline — train, deploy, serve, tear down. The pipeline is the deliverable | SageMaker · S3 · Flask |
-| **[f1-telemetry-pipeline](https://github.com/sadvi11/f1-telemetry-pipeline)** | Real-time telemetry through a decoupled queue-and-consumer pipeline with DLQ and retry | SQS · Lambda · DynamoDB |
-| **[structured-test-agent](https://github.com/sadvi11/structured-test-agent)** | An LLM that must return schema-valid JSON or retry — the difference between a demo and something a pipeline can consume | Claude API · JSON Schema |
-| **[aws-python-automation](https://github.com/sadvi11/aws-python-automation)** | boto3 automation suite — EC2 control, S3, Lambda scheduling, CloudWatch, SNS alerting | Python · boto3 |
+| **[bedrock-rag-app](https://github.com/sadvi11/bedrock-rag-app)** | RAG over financial documents — measured at 195 ms embedding, 225 ms retrieval, ~$0.0003/query. Grounded, so it reports missing context instead of inventing a number | Bedrock · Titan V2 · pgvector |
+| **[smart-ai-agent](https://github.com/sadvi11/smart-ai-agent)** | Agent with tool use, persistent memory and RAG, plus an eval suite for **prompt injection and SQL injection** | Claude API · pgvector · Flask |
+| **[structured-test-agent](https://github.com/sadvi11/structured-test-agent)** | Forced tool choice against a strict JSON Schema, with tests asserting the schema stays strict rather than advisory | Claude API · JSON Schema |
+| **[canadian-financial-sentiment](https://github.com/sadvi11/canadian-financial-sentiment)** | End-to-end SageMaker pipeline — train, deploy, serve, tear down | SageMaker · S3 · Flask |
+| **[ai-chatbot-with-memory](https://github.com/sadvi11/ai-chatbot-with-memory)** | Cross-session memory in DynamoDB, with a circuit breaker around the model API | FastAPI · DynamoDB |
+| **[f1-telemetry-pipeline](https://github.com/sadvi11/f1-telemetry-pipeline)** | Event-driven telemetry through a decoupled queue-and-consumer pipeline with DLQ and retry | SQS · Lambda · DynamoDB |
+| **[aws-python-automation](https://github.com/sadvi11/aws-python-automation)** | boto3 automation — EC2 control, S3, Lambda scheduling, CloudWatch, SNS alerting | Python · boto3 |
 
 ---
 
-## Most repos here ship a `WHY.md`
+## What I'd want you to notice
 
-Not what was built — **why**, and what the alternatives would have cost.
+**The bugs I found in my own work**, because that's harder to fake than a green badge:
 
-Why event-driven instead of polling. Why DynamoDB instead of Postgres. Why a managed model
-instead of self-hosting. What I'd change if it carried real traffic, and which failure mode
-worries me most.
+- A REST endpoint that returned a **placeholder instead of calling the agent** — valid
+  JSON, HTTP 200, and lint and type-checks both passed. Linting proves code is
+  well-formed, not that it does anything.
+- A **Rego policy matching nothing** while the test suite stayed green, because
+  Terraform emits `"tags": null` and `not r.values.tags` is false for `null`. Fixed the
+  rule, then restructured the tests so one dead policy can't hide behind its neighbours.
+- A **green CI badge over a red test suite** — `continue-on-error: true` with a comment
+  claiming credentials were needed. Eleven of twelve passed offline.
+- A deployed sentiment model scoring **2/6 on real inputs** at ~0.52 confidence while
+  cross-validation said 0.471 — worse than random. It now abstains when the input is
+  outside its vocabulary instead of guessing.
 
-Anyone can follow a tutorial. The `WHY.md` files are where the engineering judgement is, and
-they're the fastest way to tell whether I'd be useful on your team.
+A check that cannot fail is worse than no check, because it produces confidence without
+coverage. Most of my repos ship a `WHY.md` for the same reason.
 
 ---
 
 ## What I work with
 
-**Cloud** — AWS (ECS Fargate, EKS, Lambda, VPC, ECR, S3, DynamoDB, Kinesis, SQS, SNS,
-API Gateway, CloudWatch, IAM, Config, SageMaker, Bedrock) · Azure (Container Apps, ACR,
-Bicep, managed identity, Log Analytics, workload identity federation — a live deployment in
-`canadacentral`, AZ-900 certified)
+**Cloud** — AWS (EKS, ECS Fargate, Lambda, VPC, ECR, S3, DynamoDB, Kinesis, SQS, SNS,
+IAM, CloudWatch, Bedrock, SageMaker) · Azure (Container Apps, ACR, Bicep, managed
+identity, Log Analytics, workload identity federation)
 
-**Infrastructure as code** — Terraform (modules, multi-provider, remote state) · Docker ·
-Kubernetes · OpenStack
+**Infrastructure as code** — Terraform · Bicep · Helm · Kustomize · Docker · Kubernetes ·
+OpenStack
 
-**CI/CD & observability** — GitHub Actions · Prometheus · Grafana · CloudWatch ·
-test-gated pipelines · image scanning
+**CI/CD & delivery** — GitHub Actions · Azure DevOps · Argo CD (GitOps) · OIDC federation
 
-**AI/ML** — AWS Bedrock · SageMaker · Claude API · RAG · pgvector · agent tool-use ·
-LLM evaluation and red-teaming
+**Security & governance** — OPA/Rego policy-as-code · Checkov · Trivy · IRSA ·
+least-privilege IAM · SOC 2 / PCI DSS control mapping
 
-**Languages** — Python (boto3, Flask, FastAPI, scikit-learn) · HCL · Bash · SQL
+**Observability & SRE** — Prometheus · Grafana · CloudWatch · SLOs and error budgets ·
+blameless postmortems · production on-call
 
-**Telecom** — Nokia 5G Core (AMF, SMF, UPF, NRF, PCF, UDM) · CBIS/CBAM · CPAN/ZPS ·
-CNFs on Kubernetes · 3GPP SBA · ETSI MANO
+**AI/ML** — Bedrock · SageMaker · Claude API · RAG · pgvector · agent tool use ·
+LLM evaluation, prompt-injection testing
+
+**Languages** — Python (boto3, FastAPI, Flask, scikit-learn) · Bash · HCL · SQL
+
+**Telecom** — Nokia 5G Core (AMF, SMF, UPF, NRF, PCF, UDM) · CBIS/CBAM · CNFs on
+Kubernetes · 3GPP SBA · ETSI MANO
 
 ---
 
 ## Background
 
-**Nokia** — 5G Packet Core infrastructure, 2.5 years. Bell Canada and T-Mobile US.
-Kubernetes, OpenStack, CPAN/ZPS. Nokia appreciation award.
+**AI Hardware & Technology Specialist** — Meta (via Influence Marketing), Calgary ·
+Oct 2025 – present
+Technical enablement on Meta AI products and XR hardware. Built and delivered training
+for 50+ retail staff, reducing escalated issues ~30%. The infrastructure work above is
+built outside working hours.
 
-**Certifications** — Microsoft Azure Fundamentals (AZ-900)
+**Solution Engineer, Cloud Core Network** — Nokia, Delhi · Dec 2022 – Jul 2025
+5G core in carrier production at 99.9% SLA on OpenStack and Kubernetes, for Bell Canada,
+T-Mobile US and Orange. Wave-based multi-site 4G→5G migration with zero subscriber
+downtime. Production on-call with structured root cause analysis.
 
-**Education** — B.Tech
+**RF & Systems Engineer** — AA Electro Magnetic Test Labs, India · 2018 – 2020
+
+**Education** — M.Tech, Electronics & Communication Engineering, University of Delhi
+(full merit scholarship) · B.Tech, Shri Mata Vaishno Devi University
+
+**Certifications** — Microsoft Azure Fundamentals (AZ-900) · AWS Solutions Architect
+Associate (in progress)
 
 ---
 
 ## Get in touch
 
-I'm looking for a Cloud, DevOps, Platform or AI Engineering role where infrastructure is
-treated as a product rather than a cost centre. If the work above looks relevant to what
-your team is building, I'd like to hear from you.
+I'm looking for a Cloud, DevOps, Platform or SRE role where infrastructure is treated as
+a product rather than a cost centre. If the work above looks relevant to what your team
+is building, I'd like to hear from you.
 
 📧 **sadhvisharma763@gmail.com**
 💼 **[linkedin.com/in/sadhvi-sharma-5789a6249](https://www.linkedin.com/in/sadhvi-sharma-5789a6249)**
-📍 Calgary, Alberta · authorized to work in Canada · open to relocation
+📍 Calgary, Alberta · **Permanent Resident, no sponsorship required** · open to relocation
