@@ -80,6 +80,8 @@ on the other. I found that by opening the URL, not by reading the docs.
 > free-trial credits ran out. Rather than leave a dead link labelled "live", the same
 > service now also runs on a free tier, so the demo survives any one provider's billing
 > state. The Azure pipeline and Bicep templates are unchanged.
+>
+> *Free tier, so it sleeps when idle — the first request takes up to a minute to wake. Measured 42s cold, then instant.*
 
 ### 3. [Nokia 5G Core → AWS migration study](https://github.com/sadvi11/nokia-5g-to-aws-migration)
 
