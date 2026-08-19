@@ -35,6 +35,11 @@ Service discovery, horizontal scaling, event streaming, container lifecycle.
 
 Everything here is public. These three are where the engineering actually is.
 
+> **Every repository on this profile has a passing CI badge.** Not a
+> decoration — several stand up real infrastructure in CI and assert against
+> it, and a few deliberately break their own safety checks to prove the
+> tests can go red. A green suite that has never failed is not evidence.
+
 ### 1. [Three-tier e-commerce on AWS EKS](https://github.com/sadvi11/eks-ecommerce-microservices) — 13 workloads, proven on every commit
 
 8 microservices in 5 languages, 2 databases, a cache and a message broker. Terraform
@@ -188,7 +193,7 @@ downtime. Production on-call with structured root cause analysis.
 (full merit scholarship) · B.Tech, Shri Mata Vaishno Devi University
 
 **Certifications** — Microsoft Azure Fundamentals (AZ-900) · AWS Solutions Architect
-Associate (in progress)
+Associate — **studying now, sitting September 2026**
 
 ---
 
