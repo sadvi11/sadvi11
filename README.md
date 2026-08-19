@@ -174,6 +174,69 @@ Kubernetes · 3GPP SBA · ETSI MANO
 
 ---
 
+## Everything else, sorted
+
+Twenty-four public repositories is more than anyone will read. This is so you
+can go straight to whichever one matches the role you are hiring for.
+
+### Kubernetes & containers
+
+| | |
+|---|---|
+| **[eks-ecommerce-microservices](https://github.com/sadvi11/eks-ecommerce-microservices)** | 8 microservices, 5 languages, Terraform + Helm. CI proves the cart survives a pod restart |
+| **[gitops-argocd-kubernetes](https://github.com/sadvi11/gitops-argocd-kubernetes)** | Argo CD. CI **breaks production on purpose** and fails unless it self-heals |
+| **[mlops-sentiment-eks](https://github.com/sadvi11/mlops-sentiment-eks)** | HPA on Prometheus metrics; CI gates the build on cross-validated model accuracy |
+| [flask-ecs-fargate-cicd](https://github.com/sadvi11/flask-ecs-fargate-cicd) | ECS Fargate behind an ALB, no stored credentials. **Live demo** |
+| [docker-flask-ai-app](https://github.com/sadvi11/docker-flask-ai-app) | Tests gate the build; the image is scanned before it can ship |
+
+### Infrastructure as code
+
+| | |
+|---|---|
+| **[aws-multi-account-governance](https://github.com/sadvi11/aws-multi-account-governance)** | 6 SCPs, permission boundaries, **31 tests** — including the region restriction that silently breaks IAM org-wide |
+| **[aws-hybrid-network-terraform](https://github.com/sadvi11/aws-hybrid-network-terraform)** | Transit Gateway. 12 assertions, **mostly negatives** — prod cannot reach nonprod |
+| **[nokia-5g-to-aws-migration](https://github.com/sadvi11/nokia-5g-to-aws-migration)** | 7 modules mapping carrier 5G network functions onto AWS. SOC 2 + PCI DSS controls |
+| [aws-cloudformation-stacksets](https://github.com/sadvi11/aws-cloudformation-stacksets) | Org-wide baseline. 17 assertions **run in both directions** |
+| [multi-cloud-terraform](https://github.com/sadvi11/multi-cloud-terraform) | One codebase, two clouds — and the three places they stop being interchangeable |
+| [aws-vpc-terraform](https://github.com/sadvi11/aws-vpc-terraform) | Segmentation modelled on 5G packet core principles. Deployed, screenshotted |
+
+### Security & governance
+
+| | |
+|---|---|
+| **[iac-security-guardrails](https://github.com/sadvi11/iac-security-guardrails)** | Checkov + custom Rego for Canadian data residency. CI proves the guardrails **catch a deliberately insecure fixture** |
+| [azure-devops-pipelines](https://github.com/sadvi11/azure-devops-pipelines) | Workload identity federation, Key Vault, approval gates — plus a validator that catches hard-coded credentials |
+| [azure-finops-guardrails](https://github.com/sadvi11/azure-finops-guardrails) | Finds resources that cost money and do nothing. Detectors are pure functions, 25 tests, no cloud access |
+
+### Observability & SRE
+
+| | |
+|---|---|
+| **[sre-incident-practice](https://github.com/sadvi11/sre-incident-practice)** | **Real postmortems from incidents I actually hit.** A metrics disclosure, a control that failed open, an OIDC trust mismatch. Open action items left open |
+| [prometheus-monitoring-stack](https://github.com/sadvi11/prometheus-monitoring-stack) | Prometheus + Grafana + node_exporter, live dashboards on a real host |
+
+### AI & data engineering
+
+| | |
+|---|---|
+| **[smart-ai-agent](https://github.com/sadvi11/smart-ai-agent)** | Tool use, pgvector memory — graded by a suite including **prompt-injection and SQL-injection attacks** |
+| **[bedrock-rag-app](https://github.com/sadvi11/bedrock-rag-app)** | Titan Embeddings V2 + Claude Haiku, pgvector RAG. Deployed |
+| [azure-sentiment-containerapp](https://github.com/sadvi11/azure-sentiment-containerapp) | The Azure half of the both-clouds comparison. Bicep, scales to zero |
+| [canadian-financial-sentiment](https://github.com/sadvi11/canadian-financial-sentiment) | SageMaker BlazingText, real-time endpoint |
+| [f1-telemetry-pipeline](https://github.com/sadvi11/f1-telemetry-pipeline) | Event-driven SQS → Lambda → DynamoDB → CloudWatch |
+| [ai-chatbot-with-memory](https://github.com/sadvi11/ai-chatbot-with-memory) | Conversation state in DynamoDB, async FastAPI |
+| [structured-test-agent](https://github.com/sadvi11/structured-test-agent) | Tool-forced schema output, so the JSON is always valid |
+| [aws-python-automation](https://github.com/sadvi11/aws-python-automation) | boto3 operations suite — EC2, S3, Lambda, CloudWatch, SNS |
+
+**Bold** ones are where I would start.
+
+### Open source
+
+[**aquasecurity/trivy-checks**](https://github.com/aquasecurity/trivy-checks) — contribution
+accepted to the security scanner used across the industry.
+
+---
+
 ## Background
 
 **AI Hardware & Technology Specialist** — Meta (via Influence Marketing), Calgary ·
